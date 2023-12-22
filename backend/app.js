@@ -12,6 +12,15 @@ const app = express();
 app.use(express.json()); //para receber respostas em formato de texto
 app.use(express.urlencoded({ extended: false })); // para aceitar form data
 
+//solve cors
+app.use(cors({credentials: true, origin: '*'}))
+
+//upload directory
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
+
+//DB connection
+require('./config/db.js')
+
 //Routes
 const router = require('./routes/Router.js')
 app.use(router)
