@@ -32,14 +32,15 @@ const register = async (req, res) => {
     email,
     password: passwordHash,
   });
-
-  // if user was created successfully, return token
+  
+//validation if something goes wrong
   if (!newUser) {
     res.status(422)
-      .json({ errors: ["Houve um erro, por favor tente mais tarde."] });
+    .json({ errors: ["Houve um erro, por favor tente mais tarde."] });
     return;
   }
-
+  
+  // if user was created successfully, return token
   res.status(201).json({
     _id: newUser._id,
     token: generateToken(newUser._id),
@@ -72,7 +73,14 @@ const login = async (req, res) => {
   })
 }
 
+//get current logged in user
+const getCurrentUser = async(req, res) => {
+  const user = req.user;
+  res.status(200).json(user)
+}
+
 module.exports = {
   register,
   login,
+  getCurrentUser
 };
