@@ -12,7 +12,7 @@ export const useAuth = () => {
     if(user) {
       setAuth(true)
     } else {
-      false
+      setAuth(false)
     }
 
     setLoading(false)
