@@ -1,4 +1,5 @@
 import "./App.css";
+import './Scrollbar.css'
 
 //Router
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
@@ -14,6 +15,7 @@ import Register from "./pages/Auth/Register";
 // components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+
 
 function App() {
 
