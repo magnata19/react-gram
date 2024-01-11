@@ -8,12 +8,26 @@ const profile = async (data, token) => {
       .catch((err) => err);
     return res;
   } catch (error) {
-    console.error(error, 'deu ruim');
+    console.error(error, "deu ruim");
+  }
+};
+
+//  update users details
+const updateProfile = async (data, token) => {
+  const config = requestConfig("PUT", data, token, true);
+  try {
+    const res = await fetch(api + "/users/", config)
+      .then((res) => res.json())
+      .catch((err) => err);
+    return res; 
+  } catch (error) {
+    console.error(error);
   }
 };
 
 const userService = {
   profile,
+  updateProfile,
 };
 
 export default userService;

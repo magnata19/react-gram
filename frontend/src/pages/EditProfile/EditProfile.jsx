@@ -7,7 +7,11 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 //redux
-import { profile, resetMessage } from "../../components/slices/userSlice";
+import {
+  profile,
+  resetMessage,
+  updateProfile,
+} from "../../components/slices/userSlice";
 
 //components
 import Message from "../../components/Message";
@@ -27,31 +31,60 @@ const EditProfile = () => {
 
   // fill form with user data
   useEffect(() => {
-    if(user){
-      setName(user.name)
-      setEmail(user.email)
-      setBio(user.bio)
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setBio(user.bio);
     }
-  },[user])
+  }, [user]);
 
   // user image
-const handleFile = (e) => {
-  const image = e.target.files[0]
+  const handleFile = (e) => {
+    const image = e.target.files[0];
 
-  setPreviewImage(image)
+    setPreviewImage(image);
 
-  // update user profile
-  setProfileImage(image)
-}
+    // update user profile
+    setProfileImage(image);
+  };
 
   // load user data
   useEffect(() => {
     dispatch(profile());
   }, [dispatch]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //gather user data from states
+    const userData = {
+      name
+    };
+    if (profileImage) {
+      userData.profileImage = profileImage;
+    }
+
+    if (bio) {
+      userData.bio = bio;
+    }
+
+    if (password) {
+      userData.password = password;
+    }
+
+    //build form data
+    const formData = new FormData();
+   Object.keys(userData).forEach((key) =>
+      formData.append(key, userData[key])
+    );
+
+    await dispatch(updateProfile(formData));
+
+    setTimeout(() => {
+      dispatch(resetMessage(formData));
+    }, 2000);
   };
+
   return (
     <div id="edit-profile">
       <h2>Edite seus dados</h2>
@@ -59,9 +92,14 @@ const handleFile = (e) => {
         Adicione uma imagem de perfil e conte mais sobre você.
       </p>
       {(user.profileImage || previewImage) && (
-        <img 
-        src={previewImage ? URL.createObjectURL(previewImage): `${uploads}/users/${user.profile}`}
-        alt={user.name}
+        <img
+        className="profile-image"
+          src={
+            previewImage
+              ? URL.createObjectURL(previewImage)
+              : `${uploads}/users/${user.profileImage}`
+          }
+          alt={user.name}
         />
       )}
       <form onSubmit={handleSubmit}>
@@ -74,7 +112,7 @@ const handleFile = (e) => {
         <input type="email" disabled placeholder="E-mail" value={email || ""} />
         <label>
           <span>Imagem do Perfil</span>
-          <input type="file" onChange={handleFile}/>
+          <input type="file" onChange={handleFile} />
         </label>
         <label>
           <span>BIO: </span>
@@ -94,7 +132,10 @@ const handleFile = (e) => {
             value={password || ""}
           />
         </label>
-        <input type="submit" value="Atualizar" />
+        {!loading && <input type="submit" value="Atualizar" />}
+        {loading && <input type="submit" value="Aguarde..." disabled />}
+        {error && <Message msg={error} type="error" />}
+        {message && <Message msg={message} type="success" />}
       </form>
     </div>
   );

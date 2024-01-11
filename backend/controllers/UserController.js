@@ -101,9 +101,9 @@ const update = async(req, res) => {
   if(password) {
     //generate password hash
     const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(passoword, salt)
+    const passwordHash = await bcrypt.hash(password, salt)
 
-    user.passoword = passwordHash;
+    user.password = passwordHash;
   }
 
   if(profileImage){
