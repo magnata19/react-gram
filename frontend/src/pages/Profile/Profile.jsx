@@ -5,7 +5,7 @@ import { uploads } from "../../components/utils/config";
 //components
 import Message from "../../components/Message";
 import { Link } from "react-router-dom";
-import { BsFillEyeFill, BsPencilFill, BsXLg } from "react-icons/bs";
+import { BsFillEyeFill, BsPencilFill, BsX, BsXLg } from "react-icons/bs";
 
 //hooks
 import { useState, useEffect, useRef } from "react";
@@ -14,7 +14,11 @@ import { useParams } from "react-router-dom";
 
 //redux
 import { getUserDetails } from "../../components/slices/userSlice";
-import { publishPhoto, resetMessage } from "../../components/slices/photoSlice";
+import {
+  publishPhoto,
+  resetMessage,
+  getUserPhotos,
+} from "../../components/slices/photoSlice";
 
 const Profile = () => {
   const { id } = useParams();
@@ -22,6 +26,7 @@ const Profile = () => {
 
   const { user, loading } = useSelector((state) => state.user);
   const { user: userAuth } = useSelector((state) => state.auth);
+
   const {
     photos,
     loading: loadingPhoto,
@@ -40,6 +45,7 @@ const Profile = () => {
   //load user data
   useEffect(() => {
     dispatch(getUserDetails(id));
+    dispatch(getUserPhotos(id));
   }, [dispatch, id]);
 
   if (loading) {
@@ -52,7 +58,7 @@ const Profile = () => {
     setImage(image);
   };
 
-  const submitHandle = async(e) => {
+  const submitHandle = async (e) => {
     e.preventDefault();
 
     const photoData = {
@@ -63,13 +69,13 @@ const Profile = () => {
     //build form data
     const formData = new FormData();
 
-     Object.keys(photoData).forEach((key) =>
-      formData.append(key,photoData[key])
+    Object.keys(photoData).forEach((key) =>
+      formData.append(key, photoData[key])
     );
 
     await dispatch(publishPhoto(formData));
 
-    setTitle('');
+    setTitle("");
 
     setTimeout(() => {
       dispatch(resetMessage());
@@ -98,7 +104,7 @@ const Profile = () => {
                   type="text"
                   placeholder="Insira um título"
                   onChange={(e) => setTitle(e.target.value)}
-                  value={title || ''}
+                  value={title || ""}
                 />
               </label>
               <label>
@@ -106,13 +112,44 @@ const Profile = () => {
                 <input type="file" onChange={handleFile} />
               </label>
               {!loadingPhoto && <input type="submit" value="Postar" />}
-              {loadingPhoto && <input type="submit" value='Aguarde...' disabled/>}
-              {errorPhoto && <Message msg={errorPhoto} type='error'/>}
-              {messagePhoto && <Message msg={messagePhoto} type='success'/>}
+              {loadingPhoto && (
+                <input type="submit" value="Aguarde..." disabled />
+              )}
+              {errorPhoto && <Message msg={errorPhoto} type="error" />}
+              {messagePhoto && <Message msg={messagePhoto} type="success" />}
             </form>
           </div>
         </>
       )}
+      <div className="user-photos">
+        <h2>Fotos publicadas: </h2>
+        <div className="photos-container">
+          {photos &&
+            photos.map((photo) => (
+              <div className="photo" key={photo._id}>
+                {photo.image && (
+                  <img
+                    src={`${uploads}/photos/${photo.image}`}
+                    alt={photo.title}
+                  />
+                )}
+                {id === userAuth._id ? (
+                  <div className="actions">       
+                      <div className="svg-container"><Link to={`/photos/${photo._id}`}><BsFillEyeFill/></Link></div>
+                      <div className="svg-container"><BsPencilFill /></div>
+                      <div className="svg-container"><BsXLg/></div>                      
+                  </div>
+                ) : (
+                  <Link className="btn" to={`/photos/${photo._id}`}>
+                    {" "}
+                    Ver{" "}
+                  </Link>
+                )}
+              </div>
+            ))}
+          {photos.length === 0 && <p>Ainda não há fotos para serem vistas.</p>}
+        </div>
+      </div>
     </div>
   );
 };
