@@ -19,6 +19,7 @@ import {
   resetMessage,
   getUserPhotos,
   deletePhoto,
+  updatePhoto,
 } from "../../components/slices/photoSlice";
 
 const Profile = () => {
@@ -39,6 +40,10 @@ const Profile = () => {
   const [title, setTitle] = useState("");
   const [image, setImage] = useState("");
 
+  const [editId, setEditId] = useState("");
+  const [editImage, setEditImage] = useState("");
+  const [editTitle, setEditTitle] = useState("");
+
   //new form and edit form refs
   const newPhotoForm = useRef();
   const editPhotoForm = useRef();
@@ -47,7 +52,7 @@ const Profile = () => {
     setTimeout(() => {
       dispatch(resetMessage());
     }, 2000);
-  }
+  };
 
   //load user data
   useEffect(() => {
@@ -55,45 +60,76 @@ const Profile = () => {
     dispatch(getUserPhotos(id));
   }, [dispatch, id]);
 
-  
   const handleFile = (e) => {
     const image = e.target.files[0];
-    
+
     setImage(image);
   };
-  
+
   const submitHandle = async (e) => {
     e.preventDefault();
-    
+
     const photoData = {
       title,
       image,
     };
-    
+
     //build form data
     const formData = new FormData();
-    
+
     Object.keys(photoData).forEach((key) =>
-    formData.append(key, photoData[key])
+      formData.append(key, photoData[key])
     );
-    
+
     await dispatch(publishPhoto(formData));
-    
+
     setTitle("");
-    
-    resetComponentMessage()
+
+    resetComponentMessage();
   };
 
   //delete a photo
   const handleDelete = (id) => {
-    dispatch(deletePhoto(id))
-    resetComponentMessage()
-  }
+    dispatch(deletePhoto(id));
+    resetComponentMessage();
+  };
+
+  //show or hide photos
+  const showOrHidePhotos = () => {
+    newPhotoForm.current.classList.toggle("hide");
+    editPhotoForm.current.classList.toggle("hide");
+  };
+
+  //update a photo
+  const handleUpdate = (e) => {
+    e.preventDefault();
+
+    const photoData = {
+      title: editTitle,
+      id: editId,
+    };
+
+    dispatch(updatePhoto(photoData));
+    resetComponentMessage();
+  };
+
+  const handleEdit = (photo) => {
+    if (editPhotoForm.current.classList.contains("hide")) {
+      showOrHidePhotos();
+    }
+    setEditId(photo._id);
+    setEditTitle(photo.title);
+    setEditImage(photo.image);
+  };
+
+  const handleCancelEdit = () => {
+    showOrHidePhotos();
+  };
 
   if (loading) {
     return <p>Carregando...</p>;
   }
-  
+
   return (
     <div id="profile">
       <div className="profile-header">
@@ -131,6 +167,26 @@ const Profile = () => {
               {messagePhoto && <Message msg={messagePhoto} type="success" />}
             </form>
           </div>
+          <div className="edit-photo hide" ref={editPhotoForm}>
+            <p>Editando: </p>
+            {editImage && (
+              <img src={`${uploads}/photos/${editImage}`} alt={editTitle} />
+            )}
+            <form onSubmit={handleUpdate}>
+              <input
+                type="text"
+                placeholder="Insira um novo título"
+                onChange={(e) => setEditTitle(e.target.value)}
+                value={editTitle || ""}
+              />
+              {errorPhoto && <Message msg={errorPhoto} type="error" />}
+              {messagePhoto && <Message msg={messagePhoto} type="success" />}
+              <input type="submit" value="Atualizar" onClick={handleUpdate}/>
+              <button className="cancel-btn" onClick={handleCancelEdit}>
+                Cancelar Edição
+              </button>
+            </form>
+          </div>
         </>
       )}
       <div className="user-photos">
@@ -146,10 +202,18 @@ const Profile = () => {
                   />
                 )}
                 {id === userAuth._id ? (
-                  <div className="actions">       
-                      <div className="svg-container"><Link to={`/photos/${photo._id}`}><BsFillEyeFill/></Link></div>
-                      <div className="svg-container"><BsPencilFill /></div>
-                      <div className="svg-container"><BsXLg onClick={() => handleDelete(photo._id)}/></div>                      
+                  <div className="actions">
+                    <div className="svg-container">
+                      <Link to={`/photos/${photo._id}`}>
+                        <BsFillEyeFill />
+                      </Link>
+                    </div>
+                    <div className="svg-container">
+                      <BsPencilFill onClick={() => handleEdit(photo)} />
+                    </div>
+                    <div className="svg-container">
+                      <BsXLg onClick={() => handleDelete(photo._id)} />
+                    </div>
                   </div>
                 ) : (
                   <Link className="btn" to={`/photos/${photo._id}`}>
