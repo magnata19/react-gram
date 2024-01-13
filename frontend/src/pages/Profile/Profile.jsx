@@ -18,6 +18,7 @@ import {
   publishPhoto,
   resetMessage,
   getUserPhotos,
+  deletePhoto,
 } from "../../components/slices/photoSlice";
 
 const Profile = () => {
@@ -42,46 +43,57 @@ const Profile = () => {
   const newPhotoForm = useRef();
   const editPhotoForm = useRef();
 
+  const resetComponentMessage = () => {
+    setTimeout(() => {
+      dispatch(resetMessage());
+    }, 2000);
+  }
+
   //load user data
   useEffect(() => {
     dispatch(getUserDetails(id));
     dispatch(getUserPhotos(id));
   }, [dispatch, id]);
 
-  if (loading) {
-    return <p>Carregando...</p>;
-  }
-
+  
   const handleFile = (e) => {
     const image = e.target.files[0];
-
+    
     setImage(image);
   };
-
+  
   const submitHandle = async (e) => {
     e.preventDefault();
-
+    
     const photoData = {
       title,
       image,
     };
-
+    
     //build form data
     const formData = new FormData();
-
+    
     Object.keys(photoData).forEach((key) =>
-      formData.append(key, photoData[key])
+    formData.append(key, photoData[key])
     );
-
+    
     await dispatch(publishPhoto(formData));
-
+    
     setTitle("");
-
-    setTimeout(() => {
-      dispatch(resetMessage());
-    }, 2000);
+    
+    resetComponentMessage()
   };
 
+  //delete a photo
+  const handleDelete = (id) => {
+    dispatch(deletePhoto(id))
+    resetComponentMessage()
+  }
+
+  if (loading) {
+    return <p>Carregando...</p>;
+  }
+  
   return (
     <div id="profile">
       <div className="profile-header">
@@ -137,7 +149,7 @@ const Profile = () => {
                   <div className="actions">       
                       <div className="svg-container"><Link to={`/photos/${photo._id}`}><BsFillEyeFill/></Link></div>
                       <div className="svg-container"><BsPencilFill /></div>
-                      <div className="svg-container"><BsXLg/></div>                      
+                      <div className="svg-container"><BsXLg onClick={() => handleDelete(photo._id)}/></div>                      
                   </div>
                 ) : (
                   <Link className="btn" to={`/photos/${photo._id}`}>
