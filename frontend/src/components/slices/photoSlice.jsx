@@ -185,7 +185,7 @@ const photoSlice = createSlice({
         }
         state.photos.map((photo) => {
           if (photo._id === action.payload.userId) {
-            return state.photo.likes.push(action.payload.userId);
+            return state.photo.likes.push(action.payload.photoId);
           }
           return photo;
         });
