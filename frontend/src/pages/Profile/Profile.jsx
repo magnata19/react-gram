@@ -181,7 +181,7 @@ const Profile = () => {
               />
               {errorPhoto && <Message msg={errorPhoto} type="error" />}
               {messagePhoto && <Message msg={messagePhoto} type="success" />}
-              <input type="submit" value="Atualizar" onClick={handleUpdate}/>
+              <input type="submit" value="Atualizar" onClick={handleUpdate} />
               <button className="cancel-btn" onClick={handleCancelEdit}>
                 Cancelar Edição
               </button>
@@ -209,10 +209,14 @@ const Profile = () => {
                       </Link>
                     </div>
                     <div className="svg-container">
-                      <BsPencilFill onClick={() => handleEdit(photo)} />
+                      <Link>
+                        <BsPencilFill onClick={() => handleEdit(photo)} />
+                      </Link>
                     </div>
                     <div className="svg-container">
-                      <BsXLg onClick={() => handleDelete(photo._id)} />
+                      <Link>
+                        <BsXLg onClick={() => handleDelete(photo._id)} />
+                      </Link>
                     </div>
                   </div>
                 ) : (

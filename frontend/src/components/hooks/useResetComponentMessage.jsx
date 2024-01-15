@@ -5,6 +5,6 @@
     return () => {
       setTimeout(() => {
         dispatch(resetMessage());
-      }, 1000)
+      }, 2000)
     }
   }

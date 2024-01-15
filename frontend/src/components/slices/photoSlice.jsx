@@ -113,10 +113,13 @@ export const comment = createAsyncThunk(
 );
 
 //get all photos
-export const getPhotos = createAsyncThunk("photo/getall", async () => {
-  const data = await photoService.getPhoto();
-  return data;
-});
+export const getPhotos = createAsyncThunk(
+  'photo/getall', async(_, thunkAPI) => {
+    const token = thunkAPI.getState().auth.user.token;
+    const data = await photoService.getPhotos(token);
+    return data;
+  }
+)
 
 const photoSlice = createSlice({
   name: "photo",
@@ -211,9 +214,9 @@ const photoSlice = createSlice({
         if (state.photo.likes) {
           state.photo.likes.push(action.payload.userId);
         }
-        state.photos.map((photo) => {
-          if (photo._id === action.payload.userId) {
-            return state.photo.likes.push(action.payload.photoId);
+        state.photos = state.photos = state.photos.map((photo) => {
+          if (photo._id === action.payload.photoId) {
+            return {...photo, likes:[...photo.likes, action.payload.userId]}
           }
           return photo;
         });

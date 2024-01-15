@@ -48,13 +48,13 @@
 }
 
 .svg-container {
-  padding: 5px 42px;
+  padding: 5px 10px;
 }
 
-.svg-container:hover {
+.svg-container a:hover {
   cursor: pointer;
-  background-color: #464646;
-  transition: all .2s;
+  transform: scale(1.09);
+  color: #0094f6;
 }
 
 .edit-photo {
